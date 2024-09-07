@@ -26,10 +26,8 @@ echo "<h1>Total Number of items: " .  count($answer) . "</h1>";
     <h4><?php echo $cart[1];?></h4>
     <p><?php echo $cart[2];?></p>
     <p>$<?php echo $cart[3];?></p>
-    <form action="" method="post">
-        <input type="text" name="name" hidden value="<?php echo $cart[1];?>"/>
-    <button type="submit" name="delete">Delete</button>
-    </form>
+    <p>Qty: <?php echo $cart[5];?></p>
+
   </div>
 </div>
 
