@@ -1,0 +1,18 @@
+# Changelog
+
+## [Unreleased]
+
+### Added
+- **README.md**: Initial project documentation added.
+- **components/componentsController.php**: New controller added to handle component-related functionalities.
+- **core/database/dbController.php**: New database controller added for handling database connections and queries.
+- **core/dev.log**: Added a log file to track development activities.
+- **core/resources.php**: Added a resources file to manage external resources like stylesheets and scripts.
+
+### Modified
+- **controllers/userController.php**: Updated with new user management functionalities or bug fixes.
+- **core/cart/cart.php → core/cart/cartController.php**: File renamed to follow a more consistent naming convention for controllers.
+- **index.php**: Updated to reflect changes related to new controllers and resource management.
+
+### Removed
+- **core/cart/reset.php**: Deleted unused or obsolete cart reset functionality.
