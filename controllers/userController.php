@@ -13,7 +13,7 @@ class Accounts {
         $this->accessToken = $token;
         $this->APP_NAME = "Medi-cruxx";
         if($this->APP_NAME == "Medi-cruxx") { 
-            $ussd = "*"
+            $ussd = "*";
         }
     }
     public function checkIfTokenExist(){ 

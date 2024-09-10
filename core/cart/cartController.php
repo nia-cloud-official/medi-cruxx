@@ -71,4 +71,8 @@ class Cart
         return count($this->countProductsResult);
     }
 }
+
+class Prescription extends Cart { 
+    
+}
     ?>

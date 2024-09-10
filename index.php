@@ -1,12 +1,19 @@
 <?php
 
+use DBConnections\SQLDatabase\Database;
 use ShoppingCart\Cart\Cart;
 
-include 'core/cart/cart.php';
+require 'core/cart/cartController.php';
+require 'core/database/dbController.php';
+
 session_start();
 if (!$_SESSION['name']) {
+    header("Location: ./views/login.php");
 } else {
+    # Welcome back user message or something!
 }
+
+$DB = new Database();
 
 if (isset($_POST['product_id'])) {
     $product_id = $_POST['product_id'];
@@ -22,8 +29,8 @@ if (isset($_POST['product_id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link href="https:
-        rel=" stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900&display=swap"
+        rel="stylesheet">
 
     <title>Medi-Cruxx |Home</title>
     <link rel="stylesheet" type="text/css" href="public/assets/css/bootstrap.min.css">
@@ -35,6 +42,7 @@ if (isset($_POST['product_id'])) {
     <link rel="stylesheet" href="public/assets/css/owl-carousel.css">
 
     <link rel="stylesheet" href="public/assets/css/lightbox.css">
+    <script src="public/assets/js/jquery-2.1.0.min.js"></script>
 
 </head>
 
@@ -59,9 +67,8 @@ if (isset($_POST['product_id'])) {
                                     Orders
                                     <?php
                                     $username = $_SESSION['name'];
-                                    $conn = mysqli_connect("localhost", "root", "", "medx");
                                     $countMyCartContentsQuery = "SELECT * FROM cart WHERE username = '$username'";
-                                    $countMyCartResults = mysqli_query($conn, $countMyCartContentsQuery);
+                                    $countMyCartResults = mysqli_query($DB->conn, $countMyCartContentsQuery);
                                     $countMyCartResultsObtained = mysqli_fetch_all($countMyCartResults);
                                     echo count($countMyCartResultsObtained);
                                     ?>
@@ -129,18 +136,18 @@ if (isset($_POST['product_id'])) {
                     <div class="men-item-carousel">
                         <div class="owl-men-item owl-carousel">
                             <?php
-                            $conn = mysqli_connect("localhost", "root", "", "medx");
                             $query = "SELECT * FROM `products` LIMIT 5";
-                            $upperProducts = mysqli_query($conn, $query);
+                            $upperProducts = mysqli_query($DB->conn, $query);
                             $products = mysqli_fetch_all($upperProducts);
                             foreach ($products as $top_product) {
-                            ?>
+                                ?>
                                 <div class="item">
                                     <div class="thumb">
                                         <div class="hover-content">
                                             <ul>
                                                 <form action="" method="post">
-                                                    <input name="product_id" value="<?php echo $top_product[0]; ?>" hidden />
+                                                    <input name="product_id" value="<?php echo $top_product[0]; ?>"
+                                                        hidden />
                                                     <input type="submit" style="justify-content:center;
                                                 padding:10px;border:none; 
                                                 flex-direction:row;
@@ -162,7 +169,8 @@ if (isset($_POST['product_id'])) {
                                         </ul>
                                     </div>
                                 </div>
-                            <?php }; ?>
+                            <?php }
+                            ; ?>
                         </div>
                     </div>
                 </div>
@@ -171,53 +179,82 @@ if (isset($_POST['product_id'])) {
     </section>
 
     <!-- My Cart Mini Modal Lol -->
-<dialog id="myCart" class="myCart">
-    <section class="section" id="explore">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="left-content">
-                        <h2>Your Cart</h2>
-                        <span>Here are all the products you have selected..Click on complete to make the payment and get your orders.</span>
-                        <?php
-                        if (isset($_POST['delete'])) {
-                            $name = $_POST['product_name'];
-                            $query = "DELETE FROM cart WHERE name = '$name' AND username = '$username'";
-                            mysqli_query($conn, $query);
-                        } else {
-                            # Do nothing!
-                        }
-                        if (!$countMyCartResultsObtained) {
-                            echo "<br/>";
-                            echo "You haven't added anything to your cart yet.";
-                        } else {
-                            foreach ($countMyCartResultsObtained as $myCart) {
-                        ?>
-                                <form action="" method="post">
-                                    <div class="main-border-button" style="width:100% !important;display:flex;">
-                                        <a style="width:100%"><?php echo $myCart[1]; ?></a>
-                                        <a style="width:20px;display:flex;flex-direction:row;justify-content:center;">$<?php echo $myCart[3]; ?></a>
-                                        <input type="text" name="product_name" hidden value="<?php echo $myCart[1]; ?>" />
-                                        <button style="width: fit-content;height: fit-content; background-color:transparent;border:none;outline:none;decoration:none;" type="submit" name="delete">
-                                            <a style="width:200px;display:flex;flex-direction:row;gap:100px; justify-content:center;">❌ Remove</a>
-                                        </button>
-                                    </div>
-                                </form>
-                        <?php
+    <dialog id="myCart" class="myCart">
+        <section class="section" id="explore">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="left-content">
+                            <h2>Your Cart</h2>
+                            <span>Here are all the products you have selected..Click on complete to make the payment and
+                                get your orders.</span>
+                            <?php
+                            if(isset($_GET['product_name'])) {
+                                $name = $_GET['product_name'];
+                                $qr = "DELETE FROM cart WHERE name = '$name' AND username = '$username'";
+                                mysqli_query($DB->conn, $qr);
+                            } elseif (isset($_GET['product_name'])) {
+                                $name = $_GET['product_name'];
+                                $qr = "DELETE FROM cart WHERE name = '$name' AND username = '$username'";
+                                mysqli_query($DB->conn, $qr);
                             }
-                        }
-                        ?>
-                        <div class="main-border-button">
-                            <button style="background-color: transparent;border:none;outline:none;decoration:none;" onclick="myCart.close()"><a>Back to Shop</a></button>
-                            <a active>Complete Payment &rightarrow;</a>
+                            if (!$countMyCartResultsObtained) {
+                                echo "<br/>";
+                                echo "You haven't added anything to your cart yet.";
+                            } else {
+                                foreach ($countMyCartResultsObtained as $myCart) {
+                                    ?>
+                                    <form action="" method="GET">
+                                        <div class="main-border-button" style="width:100% !important;display:flex;">
+                                            <a style="width:100%"><?php echo $myCart[1]; ?></a>
+                                            <a
+                                                style="width:20px;display:flex;flex-direction:row;justify-content:center;">$<?php echo $myCart[3]; ?></a>
+                                            <input type="text" id="product_name" name="product_name" hidden value="<?php echo $myCart[1]; ?>" />
+                                            <button onclick="deleteFromCart()"
+                                                style="width: fit-content;height: fit-content; background-color:transparent;border:none;outline:none;decoration:none;"
+                                                >
+                                                <a onclick="deleteFromCart()"
+                                                    style="width:200px;display:flex;flex-direction:row;gap:100px; justify-content:center;">❌
+                                                    Remove</a>
+                                            </button>
+                                        </div>
+                                    </form>
+                                    <?php
+                                }
+                            }
+                            ?>
+                    
+                           
+                            <div class="main-border-button">
+                                <button style="background-color: transparent;border:none;outline:none;decoration:none;"
+                                    onclick="myCart.close()"><a>Back to Shop</a></button>
+                                <a active>Complete Payment &rightarrow;</a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-</dialog>
+        </section>
+    </dialog>
     <!-- -->
+
+    <script>
+                                function deleteFromCart(){ 
+                                 $.ajax({
+                                    method: "GET",
+                                    url: "#",
+                                    data: {
+                                        product_name: document.getElementById('product_name').value,
+                                    },
+                                    success: function (msg) {
+                                    },
+                                        error: function(e) {
+                                            alert("Error: " + e);
+                                        }
+                                });   
+                                }
+                                
+                            </script>
     <section class="section" id="women">
         <div class="container">
             <div class="row">
@@ -235,23 +272,26 @@ if (isset($_POST['product_id'])) {
                     <div class="women-item-carousel">
                         <div class="owl-women-item owl-carousel">
                             <?php
-                            $conn = mysqli_connect("localhost", "root", "", "medx");
                             $query = "SELECT * FROM `products` WHERE `type` = 'otc' LIMIT 5";
-                            $upperProducts = mysqli_query($conn, $query);
+                            $upperProducts = mysqli_query($DB->conn, $query);
                             $products = mysqli_fetch_all($upperProducts);
                             if (!$products) {
                                 echo "We currently have no Over the Counter Medicine in Stock";
                             } else {
                                 foreach ($products as $top_product) {
-                            ?>
+                                    ?>
                                     <div class="item">
                                         <div class="thumb">
                                             <div class="hover-content">
                                                 <ul>
-                                                    <li><a href="single-product.html"><i class="fa fa-eye"></i></a></li>
-                                                    <li><a href="single-product.html"><i class="fa fa-star"></i></a></li>
-                                                    <li><a href="single-product.html"><i class="fa fa-shopping-cart"></i></a>
-                                                    </li>
+                                                    <form action="" method="post">
+                                                        <input name="product_id" value="<?php echo $top_product[0]; ?>"
+                                                            hidden />
+                                                        <input type="submit" style="justify-content:center;
+                                                padding:10px;border:none; 
+                                                flex-direction:row;
+                                                justify-content:center" name="add" value="Add to Cart" />
+                                                    </form>
                                                 </ul>
                                             </div>
                                             <img src="public/assets/images/pills2.jpg" alt="">
@@ -266,7 +306,7 @@ if (isset($_POST['product_id'])) {
                                             </ul>
                                         </div>
                                     </div>
-                            <?php }
+                                <?php }
                             } ?>
                         </div>
                     </div>
@@ -294,23 +334,26 @@ if (isset($_POST['product_id'])) {
                     <div class="kid-item-carousel">
                         <div class="owl-kid-item owl-carousel">
                             <?php
-                            $conn = mysqli_connect("localhost", "root", "", "medx");
                             $query = "SELECT * FROM `products` WHERE `type` = 'prescription' LIMIT 5";
-                            $upperPresProducts = mysqli_query($conn, $query);
+                            $upperPresProducts = mysqli_query($DB->conn, $query);
                             $productis = mysqli_fetch_all($upperPresProducts);
                             if (!$productis) {
                                 echo "We currently have no prescription medicine in Stock";
                             } else {
                                 foreach ($productis as $top_pres_product) {
-                            ?>
+                                    ?>
                                     <div class="item">
                                         <div class="thumb">
                                             <div class="hover-content">
                                                 <ul>
-                                                    <li><a href="single-product.html"><i class="fa fa-eye"></i></a></li>
-                                                    <li><a href="single-product.html"><i class="fa fa-star"></i></a></li>
-                                                    <li><a href="single-product.html"><i class="fa fa-shopping-cart"></i></a>
-                                                    </li>
+                                                    <form action="" method="post">
+                                                        <input name="product_id" value="<?php echo $top_pres_product[0]; ?>"
+                                                            hidden />
+                                                        <input type="submit" style="justify-content:center;
+                                                padding:10px;border:none; 
+                                                flex-direction:row;
+                                                justify-content:center" name="add" value="Add to Cart" />
+                                                    </form>
                                                 </ul>
                                             </div>
                                             <img src="public/assets/images/pills2.jpg" alt="">
@@ -323,7 +366,7 @@ if (isset($_POST['product_id'])) {
                                             </ul>
                                         </div>
                                     </div>
-                            <?php }
+                                <?php }
                             } ?>
                         </div>
                     </div>
@@ -376,19 +419,20 @@ if (isset($_POST['product_id'])) {
                 </div>
                 <div class="col-lg-12">
                     <div class="under-footer">
-                        <p>Copyright © <script>
+                        <p>Copyright ©
+                            <script>
                                 let date = new Date();
                                 document.write(date.getFullYear());
-                            </script> Medi-cruxx., Ltd. All Rights Reserved.
+                            </script> Medi-cruxx , Ltd. All Rights Reserved.
 
-                            <br>⚡Powered by <a href="https:
+                            <br>⚡Powered by <a href="https://www.evanu.net">Evanu</a>
                         </p>
                         <ul>
                             <li><a href=" #"><i class="fa fa-facebook"></i></a></li>
                             <li><a><i class="fa fa-twitter"></i></a></li>
                             <li><a><i class="fa fa-linkedin"></i></a></li>
                             <li><a><i class="fa fa-behance"></i></a></li>
-                            </ul>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -412,13 +456,13 @@ if (isset($_POST['product_id'])) {
     <script src="public/assets/js/custom.js"></script>
 
     <script>
-        $(function() {
+        $(function () {
             var selectedClass = "";
-            $("p").click(function() {
+            $("p").click(function () {
                 selectedClass = $(this).attr("data-rel");
                 $("#portfolio").fadeTo(50, 0.1);
                 $("#portfolio div").not("." + selectedClass).fadeOut();
-                setTimeout(function() {
+                setTimeout(function () {
                     $("." + selectedClass).fadeIn();
                     $("#portfolio").fadeTo(50, 1);
                 }, 500);
